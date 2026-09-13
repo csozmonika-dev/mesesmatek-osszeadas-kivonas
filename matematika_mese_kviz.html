@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Matematika mese kvíz mesebeli hősökkel, öt nehézségi szinttel.">
+  <title>Matematika Mese Kvíz</title>
+  <style>
+    :root {
+      --ink: #2c2041;
+      --purple: #6d3db7;
+      --pink: #f25f8a;
+      --gold: #f5bd38;
+      --cream: #fffaf0;
+      --mint: #dff7e9;
+      --red: #b93858;
+      --shadow: 0 12px 28px rgba(52, 28, 84, .16);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Noto Sans", "Segoe UI", system-ui, sans-serif;
+      background: linear-gradient(145deg, #fff6fb 0%, #f1efff 48%, #e7fbf3 100%);
+      min-height: 100vh;
+    }
+    .wrap { width: min(1080px, 94vw); margin: 0 auto; padding: 24px 0 46px; }
+    header {
+      position: relative; overflow: hidden; text-align: center; padding: 30px 18px 24px;
+      border-radius: 28px; background: linear-gradient(135deg, #6333a7, #a4429b 65%, #e45a85);
+      color: white; box-shadow: var(--shadow);
+    }
+    header::after { content: "✦  ✧  ✦  ✧  ✦"; position: absolute; right: 5%; top: 15px; font-size: 1.5rem; opacity: .7; }
+    h1 { margin: 0 0 7px; font-size: clamp(2rem, 6vw, 4.2rem); letter-spacing: .03em; }
+    .subtitle { margin: 0; font-size: clamp(1rem, 2.4vw, 1.25rem); }
+    .panel { background: rgba(255,255,255,.86); border: 1px solid rgba(109,61,183,.13); border-radius: 22px; box-shadow: var(--shadow); padding: 22px; margin-top: 18px; }
+    .controls { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 14px; align-items: end; }
+    label { display: block; font-weight: 800; margin-bottom: 6px; }
+    select, input[type="text"] { width: 100%; border: 2px solid #d6c5ee; border-radius: 12px; padding: 12px 13px; font: inherit; color: var(--ink); background: white; }
+    input:focus, select:focus, button:focus { outline: 4px solid rgba(245,189,56,.45); outline-offset: 2px; }
+    button { border: 0; border-radius: 13px; padding: 12px 18px; cursor: pointer; font: inherit; font-weight: 900; color: white; transition: transform .15s, filter .15s; }
+    button:hover { transform: translateY(-2px); filter: brightness(1.05); }
+    .start { background: linear-gradient(135deg, #ef5a83, #7137b6); min-height: 52px; font-size: 1.15rem; }
+    .answer { background: var(--purple); }
+    .dispute { background: #ca5271; }
+    .new-game { background: #267e65; }
+    .startline { display: flex; gap: 10px; align-items: end; }
+    .startline input { flex: 1; }
+    .startline button { flex: 0 0 auto; }
+    .hero-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; margin: 17px 0 2px; }
+    .hero { background: #fff7d8; border: 1px solid #f3d676; border-radius: 999px; padding: 8px 13px; font-weight: 800; }
+    .status { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+    .stat { background: #f7f0ff; border-radius: 15px; text-align: center; padding: 12px 7px; }
+    .stat strong { display: block; color: var(--purple); font-size: 1.5rem; }
+    .question-card { text-align: center; border: 3px dashed #e7b13b; background: var(--cream); border-radius: 20px; padding: 22px; }
+    .badge { display: inline-block; background: var(--gold); color: #4a3210; font-weight: 900; border-radius: 999px; padding: 5px 12px; }
+    #question { font-size: clamp(1.55rem, 4vw, 2.5rem); font-weight: 900; margin: 15px 0; }
+    .answer-row { display: flex; gap: 10px; max-width: 600px; margin: 0 auto; }
+    .answer-row input { flex: 1; font-size: 1.25rem; text-align: center; }
+    .message { min-height: 28px; margin: 15px 0 0; font-weight: 800; }
+    .message.ok { color: #19704f; } .message.no { color: var(--red); }
+    .verification { margin: 14px auto 0; max-width: 650px; padding: 15px; border-radius: 14px; color: #503184; background: #f0e8ff; border: 2px solid #c6a9f3; font-weight: 900; animation: pulse 1s infinite; }
+    .countdown-number { display: inline-block; min-width: 1.5em; color: var(--pink); font-size: 1.5em; }
+    @keyframes pulse { 50% { transform: scale(1.02); box-shadow: 0 0 18px rgba(109,61,183,.22); } }
+    .solution { text-align: left; background: #eefaf3; border-left: 6px solid #37a477; padding: 14px 17px; border-radius: 12px; margin-top: 17px; line-height: 1.55; }
+    .solution h3 { margin: 0 0 7px; }
+    .hidden { display: none !important; }
+    .victory { text-align: center; background: linear-gradient(135deg, #fff8c8, #ffe9a0); border: 3px solid var(--gold); }
+    .trophy { font-size: 5rem; filter: drop-shadow(0 5px 2px rgba(114,70,0,.22)); }
+    .hint { color: #635572; font-size: .92rem; margin: 8px 0 0; }
+    footer { text-align: center; color: #665a72; padding-top: 18px; font-size: .9rem; }
+    @media (max-width: 720px) {
+      .controls { grid-template-columns: 1fr; } .startline { align-items: stretch; flex-direction: column; }
+      .status { grid-template-columns: repeat(2, 1fr); } .answer-row { flex-direction: column; }
+      .answer-row button { width: 100%; } .panel { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>Matematika Mese Kvíz</h1>
+      <p class="subtitle">Segíts a mesebeli hősöknek eljutni az aranytornyig!</p>
+    </header>
+
+    <section class="panel" aria-label="Játék indítása">
+      <div class="controls">
+        <div>
+          <label for="level">Nehézségi szint</label>
+          <select id="level">
+            <option value="A">A – Aprócska</option>
+            <option value="K1">K1 – Kezdő</option>
+            <option value="K2" selected>K2 – Kalandor</option>
+            <option value="K3">K3 – Királyi</option>
+            <option value="H">H – Hősies</option>
+          </select>
+        </div>
+        <div class="startline">
+          <div style="flex:1"><label for="startInput">Indító szó</label><input id="startInput" type="text" autocomplete="off" placeholder="Írd be: START" aria-label="Írd be a START szót"></div>
+          <button id="startTyped" class="start" type="button">START</button>
+        </div>
+        <button id="startButton" class="start" type="button">▶ START A MESÉRE!</button>
+      </div>
+      <p class="hint">A nagy START gombbal vagy a mezőbe írt „START” szóval is elindíthatod a játékot. Kezdő szint: K2.</p>
+      <div class="hero-row" aria-label="Mesebeli szereplők">
+        <span class="hero">🐉 Süsü</span><span class="hero">🧺 Piroska</span><span class="hero">🍎 Hófehérke</span><span class="hero">🧙‍♀️ Tündér</span><span class="hero">👑 Királyfi</span>
+      </div>
+    </section>
+
+    <section id="game" class="panel hidden" aria-live="polite">
+      <div class="status">
+        <div class="stat"><span>Pontszám</span><strong id="score">0</strong></div>
+        <div class="stat"><span>Szint</span><strong id="levelView">K2</strong></div>
+        <div class="stat"><span>H-sorozat</span><strong id="streak">0</strong></div>
+        <div class="stat"><span>Feladat</span><strong id="round">1</strong></div>
+      </div>
+      <div class="question-card">
+        <span id="character" class="badge">Süsü kérdez</span>
+        <p id="story" class="hint"></p>
+        <div id="question">A feladat betöltése…</div>
+        <div class="answer-row">
+          <input id="answer" type="text" inputmode="numeric" autocomplete="off" aria-label="Válasz" placeholder="A válaszod">
+          <button id="checkButton" class="answer" type="button">Ellenőrzés</button>
+        </div>
+        <p id="message" class="message"></p>
+        <div id="solution" class="solution hidden"></div>
+        <button id="disputeButton" class="dispute hidden" type="button">Szerintem helyes a válaszom</button>
+        <div id="verification" class="verification hidden" aria-live="polite"></div>
+        <button id="nextButton" class="new-game hidden" type="button">Következő kérdés</button>
+      </div>
+    </section>
+
+    <section id="victory" class="panel victory hidden" aria-live="assertive">
+      <div class="trophy">🏆</div><h2>Aranytrophéa!</h2>
+      <p id="victoryText">Elérted az 50 pontot, és megmentetted a mesebirodalmat!</p>
+      <button id="newGameButton" class="new-game" type="button">Új mese indítása</button>
+    </section>
+    <footer>Egész számokkal dolgozunk – jó gondolkodást és vidám kalandozást!</footer>
+  </main>
+
+  <script>
+    "use strict";
+    (function () {
+      var levels = {
+        A: { name: "Aprócska", max: 10, operations: ["+", "-"] },
+        K1: { name: "Kezdő", max: 20, operations: ["+", "-", "×"] },
+        K2: { name: "Kalandor", max: 50, operations: ["+", "-", "×"] },
+        K3: { name: "Királyi", max: 100, operations: ["+", "-", "×", "÷"] },
+        H: { name: "Hősies", max: 200, operations: ["+", "-", "×", "÷"] }
+      };
+      var characters = ["🐉 Süsü kérdez", "🧺 Piroska kérdez", "🍎 Hófehérke kérdez", "👠 Hamupipőke kérdez", "👑 A Királyfi kérdez", "🧙‍♀️ A Tündér kérdez"];
+      var levelOrder = ["A", "K1", "K2", "K3", "H"];
+      var levelPoints = { A: 1, K1: 3, K2: 5, K3: 8, H: 10 };
+      var stories = [
+        "Süsü a csillogó ösvényen találta ezt a varázsszámot.",
+        "Piroska a kosarában egy titkos matematikai üzenetet hozott.",
+        "Hófehérke hét törpéje együtt keresi a számok kulcsát.",
+        "Hamupipőke a bál előtt szeretné megfejteni a kastély kapujának kódját.",
+        "A Királyfi a sárkánybarlang ajtaját csak a helyes eredménnyel nyithatja ki.",
+        "A Tündér csillagporral rajzolta a feladatot az égre."
+      ];
+      var state = { score: 0, streak: 0, round: 0, level: "K2", question: null, answered: false };
+      var $ = function (id) { return document.getElementById(id); };
+      var randomInt = function (min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; };
+
+      function makeQuestion() {
+        var config = levels[state.level];
+        var op = config.operations[randomInt(0, config.operations.length - 1)];
+        var a; var b; var answer; var expression; var steps;
+        if (op === "÷") {
+          b = randomInt(2, Math.max(2, Math.floor(config.max / 5)));
+          answer = randomInt(2, Math.max(2, Math.floor(config.max / b)));
+          a = b * answer;
+          expression = a + " ÷ " + b;
+          steps = ["Az osztandó: " + a + ", az osztó: " + b + ".", a + " ÷ " + b + " = " + answer + "."];
+        } else {
+          a = randomInt(1, config.max); b = randomInt(1, config.max);
+          if (op === "-") { if (b > a) { var swap = a; a = b; b = swap; } answer = a - b; }
+          if (op === "+") { answer = a + b; }
+          if (op === "×") { a = randomInt(1, Math.max(2, Math.floor(config.max / 4))); b = randomInt(1, Math.max(2, Math.floor(config.max / 4))); answer = a * b; }
+          expression = a + " " + op + " " + b;
+          if (op === "+") { steps = ["Bontsd fel a számokat: " + a + " és " + b + ".", a + " + " + b + " = " + answer + "."]; }
+          else if (op === "-") { steps = ["A nagyobb számból vond ki a kisebbet: " + a + " - " + b + ".", a + " - " + b + " = " + answer + "."]; }
+          else { steps = ["A szorzás összeadásként is értelmezhető: " + a + " szorozva " + b + "-tel.", a + " × " + b + " = " + answer + "."]; }
+        }
+        return { expression: expression, answer: answer, steps: steps };
+      }
+
+      function renderQuestion() {
+        state.round += 1; state.answered = false; state.question = makeQuestion();
+        $("round").textContent = String(state.round) + " / 10"; $("levelView").textContent = state.level;
+        $("question").textContent = state.question.expression + " = ?";
+        $("character").textContent = characters[(state.round - 1) % characters.length];
+        $("story").textContent = stories[(state.round - 1) % stories.length];
+        $("answer").value = ""; $("answer").disabled = false; $("checkButton").disabled = false;
+        $("message").textContent = ""; $("message").className = "message";
+        $("solution").classList.add("hidden"); $("disputeButton").classList.add("hidden"); $("verification").classList.add("hidden"); $("nextButton").classList.add("hidden"); $("answer").focus();
+      }
+      function updateStats() { $("score").textContent = String(state.score); $("streak").textContent = String(state.streak); $("levelView").textContent = state.level; }
+      function adjustLevel(direction) {
+        var index = levelOrder.indexOf(state.level);
+        state.level = levelOrder[Math.max(0, Math.min(levelOrder.length - 1, index + direction))];
+      }
+      function showSolution() {
+        $("solution").innerHTML = "<h3>Lépésről lépésre</h3><ol><li>" + state.question.steps[0] + "</li><li>" + state.question.steps[1] + "</li></ol><strong>A helyes válasz: " + state.question.answer + "</strong>";
+        $("solution").classList.remove("hidden"); $("disputeButton").classList.remove("hidden"); $("nextButton").classList.remove("hidden");
+      }
+      function finishVictory(reason) {
+        $("game").classList.add("hidden"); $("victory").classList.remove("hidden"); $("victoryText").textContent = reason;
+      }
+      function finishSummary() {
+        var passed = state.score >= 50;
+        finishVictory("10 kérdésből álló kaland véget ért! " + (passed ? "Elérted az 50 pontos sikerhatárt, a mesebirodalom megmenekült! 🏆" : "Még nem érted el az 50 pontos sikerhatárt, de minden válasz közelebb vitt a varázslathoz! ✨") + " Összpontszám: " + state.score + ".");
+      }
+      function checkAnswer() {
+        if (state.answered || !state.question) { return; }
+        var raw = $("answer").value.trim();
+        if (!/^-?\d+$/.test(raw)) { $("message").textContent = "Kérlek, egész számot írj be!"; $("message").className = "message no"; return; }
+        var given = Number(raw); state.answered = true; $("answer").disabled = true; $("checkButton").disabled = true;
+        if (given === state.question.answer) {
+          state.streak += 1; var gained = levelPoints[state.level];
+          if (state.level === "H" && state.streak === 3) { gained = 10; }
+          else if (state.level === "H" && state.streak === 4) { gained = 15; }
+          else if (state.level === "H" && state.streak >= 5) { state.score += 100; updateStats(); finishVictory("Öt egymást követő H-szintű helyes válasszal instant győzelmet arattál! 🏆"); return; }
+          state.score += gained; adjustLevel(1); updateStats(); $("message").textContent = "Helyes! +" + gained + " pont. A következő szint: " + state.level + "."; $("message").className = "message ok";
+        } else {
+          state.streak = 0; adjustLevel(-1); updateStats(); $("message").textContent = "Most nem sikerült. Egy szinttel lejjebb lépsz: " + state.level + "."; $("message").className = "message no";
+        }
+        showSolution();
+      }
+      function startGame() {
+        state = { score: 0, streak: 0, round: 0, level: "K2", question: null, answered: false };
+        $("level").value = "K2"; $("victory").classList.add("hidden"); $("game").classList.remove("hidden"); updateStats(); renderQuestion();
+      }
+      function nextQuestion() { if (!state.answered) { return; } if (state.round >= 10) { finishSummary(); return; } renderQuestion(); }
+      $("startButton").addEventListener("click", startGame); $("startTyped").addEventListener("click", function () { if ($("startInput").value.trim().toUpperCase() === "START") { startGame(); } else { $("startInput").focus(); } });
+      $("startInput").addEventListener("keydown", function (event) { if (event.key === "Enter" && $("startInput").value.trim().toUpperCase() === "START") { startGame(); } });
+      function verifyAnswer() {
+        if (!state.answered) { return; }
+        $("disputeButton").disabled = true; $("disputeButton").classList.add("hidden"); $("nextButton").classList.add("hidden"); $("verification").classList.remove("hidden");
+        var remaining = 5;
+        $("verification").innerHTML = "Kétszeres ellenőrzés folyamatban... <span class=\"countdown-number\">" + remaining + "</span>...";
+        var timer = setInterval(function () {
+          remaining -= 1;
+          if (remaining > 0) {
+            $("verification").innerHTML = "Kétszeres ellenőrzés folyamatban... <span class=\"countdown-number\">" + remaining + "</span>...";
+          } else {
+            clearInterval(timer);
+            $("verification").innerHTML = "Kétszeres ellenőrzés kész — az eredmény megerősítve. ✅";
+            $("nextButton").classList.remove("hidden");
+          }
+        }, 1000);
+      }
+      $("checkButton").addEventListener("click", checkAnswer); $("answer").addEventListener("keydown", function (event) { if (event.key === "Enter") { checkAnswer(); } });
+      $("disputeButton").addEventListener("click", verifyAnswer);
+      $("nextButton").addEventListener("click", nextQuestion); $("newGameButton").addEventListener("click", startGame);
+      window.addEventListener("keydown", function (event) { if (event.key === "Escape" && !$("game").classList.contains("hidden")) { $("game").classList.add("hidden"); } });
+    }());
+  </script>
+</body>
+</html>
